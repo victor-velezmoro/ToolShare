@@ -1,37 +1,34 @@
-# Milestone 1
+# :one: Milestone 1
 
----
-
-## ToolShare
-
+## ToolShare :iphone: :hammer:
 > Version 0.0.1
 
-## Product Description
+### Product Description
 
 ToolShare is a community-driven platform that lets you rent tools like drills, lawn mowers, and more from your neighbors. Why buy expensive equipment when you can borrow it locally? Easily browse available tools, rent what you need, and save money while fostering a sense of community. Share your own tools, earn extra cash, and help reduce waste by making resources accessible to everyone around you.   
 
 With ToolShare, renting and sharing tools is simple:
 
-* Rent out: List your tool with a picture, brand, age, skill level required, and set a price per day.
-* Rent: Browse available tools, select what you need, specify how long you want it, and share your experience level.
-* What if things break?: We recommend signing up for our insurance. If a tool breaks, we’ll replace it and ensure the owner gets a new one.
+- **Rent out**: List your tool with a picture, brand, age, skill level required, and set a price per day.
+- **Rent**: Browse available tools, select what you need, specify how long you want it, and share your experience level.
+- **What if things break?**: We recommend signing up for our insurance. If a tool breaks, we’ll replace it and ensure the owner gets a new one.
 
-Easy!!!
+**Easy!!!**
 
 ---
 
-# Repository Setup Guide
+## Repository Setup Guide
 
-## 1. Repository Creation
+### 1. Repository Creation
 1. Navigate to [GitHub](https://github.com/) and log in.
 2. Click on the **+** icon in the top-right corner and select **New repository**.
 3. Fill in the details:
-   - **Repository name:** (e.g., `my-repo-name`)
-   - **Description:** A brief description of the repository.
+   - **Repository name**: (e.g., `toolshare-repo`)
+   - **Description**: A brief description of the repository.
    - Select **Public** or **Private** according to your preference.
    - Check the box to initialize the repository with a **README** file.
 
-## 2. SSH Key Setup
+### 2. SSH Key Setup
 
 To securely interact with GitHub using SSH, follow these steps:
 
@@ -58,10 +55,10 @@ To securely interact with GitHub using SSH, follow these steps:
 
 4. **Clone the repository using SSH**:
     ```bash
-    git clone git@github.com:your-username/your-repo-name.git
+    git clone git@github.com:your-username/toolshare-repo.git
     ```
 
-## 3. Setting up a License
+### 3. Setting up a License
 
 1. Navigate to your repository on GitHub.
 2. Click the **Add file** dropdown and select **Create new file**.
@@ -69,7 +66,7 @@ To securely interact with GitHub using SSH, follow these steps:
 4. In the editor, GitHub offers an option to choose a template for the license. Select a license that best suits your project (e.g., MIT License).
 5. Click **Commit new file**.
 
-## 4. Committing and Pushing Changes
+### 4. Committing and Pushing Changes
 
 1. Make changes to your local repository.
 2. To stage changes:
@@ -85,5 +82,6 @@ To securely interact with GitHub using SSH, follow these steps:
     git push origin main
     ```
 
+---
 
-
+Feel free to use this organized format for your project README!

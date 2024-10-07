@@ -2,7 +2,7 @@
 
 # :wrench: ToolShare :carpentry_saw:
 ![alt text](images/ToolShare.webp)
-## Product
+## Product :iphone: :hammer:
 
 ToolShare is a community-driven platform that lets you rent tools like drills, lawn mowers, and more from your neighbors. Why buy expensive equipment when you can borrow it locally? Easily browse available tools, rent what you need, and save money while fostering a sense of community. Share your own tools, earn extra cash, and help reduce waste by making resources accessible to everyone around you.   
 
