@@ -17,13 +17,16 @@ With ToolShare, renting and sharing tools is simple:
 
 ### Why use the Cloud?
 
-Running ToolShare in the cloud is ideal because it allows easy scaling as the platform grows and ensures availability during high demand. The cloud also provides built-in security and backup options, making it easier to manage without the need for extra infrastructure. This flexibility is important for a student project with limited resources.
+Running ToolShare in the cloud is ideal because it allows easy scaling as the platform grows and ensures availability during high demand. The cloud also provides built-in security and backup options, making it easier to manage without the need for extra infrastructure. 
 
 
 
 ---
 
 ## Repository Setup Guide
+
+This is a general guide to setting up a repository for your project on GitHub. It includes creating a repository, setting up an SSH key, adding a license, and committing and pushing changes.
+To be able to follow this guide, you need to have a GitHub account and Git installed on your machine. There are plenty of resources available online to help you set up Git and GitHub if you haven't done so already.
 
 ### 1. Repository Creation
 1. Navigate to [GitHub](https://github.com/) and log in.
