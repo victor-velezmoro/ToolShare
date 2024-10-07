@@ -1,4 +1,4 @@
-# Hitos
+
 
 # :wrench: ToolShare :carpentry_saw:
 ![alt text](images/ToolShare.webp)
@@ -14,5 +14,6 @@ With ToolShare, renting and sharing tools is simple:
 Easy!!!
 
 
-Link to get to the first milestone: [Milestone 1](/home/victor/Granda/CC/ToolShare/documentation/milestone1.md)
+Link to get to the milestones: 
+[Milestone 1](ToolShare/documentation/milestone1.md)
 
