@@ -15,6 +15,12 @@ With ToolShare, renting and sharing tools is simple:
 
 **Easy!!!**
 
+### Why use the Cloud?
+
+Running ToolShare in the cloud is ideal because it allows easy scaling as the platform grows and ensures availability during high demand. The cloud also provides built-in security and backup options, making it easier to manage without the need for extra infrastructure. This flexibility is important for a student project with limited resources.
+
+
+
 ---
 
 ## Repository Setup Guide
@@ -82,6 +88,4 @@ To securely interact with GitHub using SSH, follow these steps:
     git push origin main
     ```
 
----
 
-Feel free to use this organized format for your project README!

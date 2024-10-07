@@ -15,5 +15,6 @@ Easy!!!
 
 
 Link to get to the milestones: 
-[Milestone 1](ToolShare/documentation/milestone1.md)
+
+[Milestone 1](/documentation/milestone1.md)
 
