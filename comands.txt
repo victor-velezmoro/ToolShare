@@ -9,9 +9,26 @@ curl -X POST "http://127.0.0.1:8000/" -H "Authorization: Bearer eyJhbGciOiJIUzI1
     "categary": "tools"
 }'
 
+curl -X POST "http://127.0.0.1:8000/" -H "Content-Type: application/json" -d '{
+  "name": "Hammer",
+  "description": "A tool for hammering nails",
+  "price": 10.0,
+  "category": "tools"
+}'
+
+curl -X POST "http://127.0.0.1:8000/" -H "Content-Type: application/json" -d '{
+  "name": "Mower",
+  "price": 10.0,
+  "category": "tools"
+}'
+
 #database
 
 docker exec -it fastapi-postgres psql -U myuser -d fastapi_database
 SELECT * FROM users WHERE username = 'usertest';
 SELECT * FROM users;
+
+\dt # for tables
+\l  # for databases
+
 

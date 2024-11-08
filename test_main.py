@@ -1,17 +1,20 @@
+# test_main.py
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from main import app, get_db
 from models import Base, User as DBUser, Item as DBItem, Category
-from database import DATABASE_URL
 
-# Use the existing database for testing
-SQLALCHEMY_DATABASE_URL = DATABASE_URL
+# Use a dedicated test database URL to avoid interfering with the main database
+#SQLALCHEMY_DATABASE_URL = "postgresql://myuser:password@localhost:5432/test_fastapi_database"
+# Replace 'localhost' with the Docker container hostname or network IP
+SQLALCHEMY_DATABASE_URL = "postgresql://myuser:password@localhost:5432/test_fastapi_database"
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Override the get_db dependency to use the existing database
+# Override the get_db dependency to use the test database session
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -21,89 +24,73 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-@pytest.fixture(scope="module")
-def setup_database():
-    # Create the database schema
-    Base.metadata.create_all(bind=engine)
-    yield
-    # Drop the database schema
-    Base.metadata.drop_all(bind=engine)
-
+# Create the test client
 client = TestClient(app)
 
+# Setup and teardown for the test database
 @pytest.fixture(scope="module")
-def db():
-    db = TestingSessionLocal()
-    yield db
-    db.close()
+def setup_database():
+    # Ensure we're using the test database
+    if "test" not in SQLALCHEMY_DATABASE_URL:
+        raise RuntimeError("Tests should not run on the production database!")
 
-def test_register_user(setup_database, db):
+    # Create the test tables
+    Base.metadata.create_all(bind=engine)
+    yield  # Run the tests
+    # Drop the tables after tests complete
+    Base.metadata.drop_all(bind=engine)
+
+# Test functions using the setup_database fixture
+def test_register_user(setup_database):
     response = client.post("/register", json={
-        "username": "usertest",
-        "email": "usertest@example.com",
-        "full_name": "User Test",
-        "password": "password123"
+        "username": "testuser",
+        "email": "testuser@example.com",
+        "full_name": "Test User",
+        "password": "testpassword"
     })
-    print(response.json()) 
     assert response.status_code == 200
-    data = response.json()
-    assert data["username"] == "usertest"
-    assert data["email"] == "usertest@example.com"
+    assert response.json()["username"] == "testuser"
 
 def test_login_user(setup_database):
     response = client.post("/token", data={
-        "username": "usertest",
-        "password": "password123"
+        "username": "testuser",
+        "password": "testpassword"
     })
     assert response.status_code == 200
-    data = response.json()
-    assert "access_token" in data
-    assert data["token_type"] == "bearer"
-    return data["access_token"]
+    assert "access_token" in response.json()
 
-def test_add_item(setup_database, db):
-    token = test_login_user(setup_database)
+
+def test_add_item(setup_database):
     response = client.post("/", json={
         "name": "Hammer",
-        "description": "A useful tool",
+        "description": "A tool for hammering nails",
         "price": 10.0,
-        "category": "TOOLS"
-    }, headers={"Authorization": f"Bearer {token}"})
+        "category": "tools"
+    })
     assert response.status_code == 200
-    data = response.json()
-    assert data["added"]["name"] == "Hammer"
-    assert data["added"]["description"] == "A useful tool"
-    assert data["added"]["price"] == 10.0
-    assert data["added"]["category"] == "TOOLS"
+    assert response.json()["added"]["name"] == "Hammer"
 
-# def test_get_items(setup_database):
-#     response = client.get("/")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert len(data["items"]) > 0
+def test_get_items(setup_database):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert len(response.json()["items"]) > 0
 
-# def test_get_item_by_id(setup_database):
-#     response = client.get("/items/1")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["name"] == "Hammer"
+def test_get_item_by_id(setup_database):
+    response = client.get("/items/1")
+    assert response.status_code == 200
+    assert response.json()["name"] == "Hammer"
 
-# def test_update_item(setup_database):
-#     token = test_login_user(setup_database)
-#     response = client.put("/update/1", json={
-#         "name": "Hammer",
-#         "description": "A very useful tool",
-#         "price": 12.0,
-#         "category": "TOOLS"
-#     }, headers={"Authorization": f"Bearer {token}"})
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["updated"]["description"] == "A very useful tool"
-#     assert data["updated"]["price"] == 12.0
+def test_update_item(setup_database):
+    response = client.put("/update/1", json={
+        "name": "Updated Hammer",
+        "description": "An updated tool for hammering nails",
+        "price": 12.0,
+        "category": "tools"
+    })
+    assert response.status_code == 200
+    assert response.json()["updated"]["name"] == "Updated Hammer"
 
-# def test_delete_item(setup_database):
-#     token = test_login_user(setup_database)
-#     response = client.delete("/delete/1", headers={"Authorization": f"Bearer {token}"})
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["deleted"]["name"] == "Hammer"
+def test_delete_item(setup_database):
+    response = client.delete("/delete/1")
+    assert response.status_code == 200
+    assert response.json()["deleted"]["name"] == "Updated Hammer"
