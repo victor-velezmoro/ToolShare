@@ -1,0 +1,17 @@
+curl -X POST "http://127.0.0.1:8000/login" -H "Content-Type: application/json" -d '{"username": "usertest", "password": "passwordtest"}'
+curl -X POST "http://127.0.0.1:8000/register" -H "Content-Type: application/json" -d '{"username": "usertest", "password": "passwordtest"}'
+
+curl -X POST "http://127.0.0.1:8000/token" -H "Content-Type: application/x-www-form-urlencoded" -d "username=myuser&password=password"
+curl -X POST "http://127.0.0.1:8000/" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VydGVzdCIsImV4cCI6MTczMTA1OTAyNX0.82I9LvoIxiS9lJGBEvnWEunlLgFfL29mumlQE7gDmZ0" -H "Content-Type: application/json" -d '{
+    "name": "Heavy-Duty Hammer",
+    "description": "An upgraded heavy-duty hammer",
+    "price": 20.0,
+    "categary": "tools"
+}'
+
+#database
+
+docker exec -it fastapi-postgres psql -U myuser -d fastapi_database
+SELECT * FROM users WHERE username = 'usertest';
+SELECT * FROM users;
+
