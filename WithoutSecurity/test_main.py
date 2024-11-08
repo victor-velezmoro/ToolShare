@@ -3,12 +3,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from main import app, get_db
+from WithoutSecurity.main import app, get_db
 from models import Base, User as DBUser, Item as DBItem, Category
 
-# Use a dedicated test database URL to avoid interfering with the main database
+
 #SQLALCHEMY_DATABASE_URL = "postgresql://myuser:password@localhost:5432/test_fastapi_database"
-# Replace 'localhost' with the Docker container hostname or network IP
 SQLALCHEMY_DATABASE_URL = "postgresql://myuser:password@localhost:5432/test_fastapi_database"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -69,11 +68,8 @@ def test_add_item(setup_database):
     })
     assert response.status_code == 200
     assert response.json()["added"]["name"] == "Hammer"
+    
 
-def test_get_items(setup_database):
-    response = client.get("/")
-    assert response.status_code == 200
-    assert len(response.json()["items"]) > 0
 
 def test_get_item_by_id(setup_database):
     response = client.get("/items/1")

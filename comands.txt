@@ -9,18 +9,20 @@ curl -X POST "http://127.0.0.1:8000/" -H "Authorization: Bearer eyJhbGciOiJIUzI1
     "categary": "tools"
 }'
 
-curl -X POST "http://127.0.0.1:8000/" -H "Content-Type: application/json" -d '{
-  "name": "Hammer",
-  "description": "A tool for hammering nails",
-  "price": 10.0,
-  "category": "tools"
-}'
-
+#commands without security
 curl -X POST "http://127.0.0.1:8000/" -H "Content-Type: application/json" -d '{
   "name": "Mower",
   "price": 10.0,
   "category": "tools"
 }'
+
+curl -X PUT "http://127.0.0.1:8000/update/1" -H "Content-Type: application/json" -d '{
+  "name": "Updated Mower",
+  "description": "An updated description",
+  "price": 15.0,
+  "category": "tools"
+}'
+curl -X POST "http://127.0.0.1:8000/" -H "Content-Type: application/json" -d '{}'
 
 #database
 

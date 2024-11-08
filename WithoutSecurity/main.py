@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel, Field
-from typing import Annotated, Optional
+from typing import Optional
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
@@ -116,9 +116,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Username already registered")
     return create_user(db, user)
 
-
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    #print("Retrieved user:", user)
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -137,8 +135,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
-async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]):
-    print("Current user's disabled status:", current_user.disabled)
+async def get_current_active_user(current_user: User = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -147,65 +144,86 @@ class Item(BaseModel):
     name: str = Field(description="Name of the item", min_length=1)
     description: Optional[str] = None
     price: float = Field(description="Price for borrowing the item")
-    # id: int = Field(description="Unique identifier for the item")
     category: Category = Field(description="category of the item")
 
 @app.on_event("startup")
 def on_startup():
     init_db()
 
-# @app.get("/")
-# def index() -> dict[str, dict[int, Item]]:
-#     return {"items": items}
+
 @app.get("/")
 def index(db: Session = Depends(get_db)) -> dict[str, list[Item]]:
     db_items = db.query(DBItem).all()
-    items = [Item.model_validate(db_item) for db_item in db_items]
+    items = [Item(**db_item.__dict__) for db_item in db_items if "_sa_instance_state" not in db_item.__dict__]
     return {"items": items}
 
+
 @app.get("/items/{item_id}")
-def get_item_by_id(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db)) -> Item:
+def get_item_by_id(item_id: int, db: Session = Depends(get_db)) -> Item:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail=f"Item with {item_id = } not found")
     return db_item
 
 @app.post("/")
-def add_item(item: Item, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)) -> dict[str, Item]:
-    db_item = db.query(DBItem).filter(DBItem.id == item.id).first()
-    db_item = DBItem(**item.dict()) 
+def add_item(item: Item, db: Session = Depends(get_db)) -> dict[str, Item]:
+    db_item = db.query(DBItem).filter(DBItem.name == item.name).first()
     if db_item:
-        raise HTTPException(status_code=400, detail=f"Item already exists")
+        raise HTTPException(status_code=400, detail="Item already exists")
     new_item = DBItem(**item.dict())
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
     return {"added": new_item}
 
-@app.put("/update/{item_id}")
-def update_item(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db), 
-    name: Optional[str] = None,
-    description: Optional[str] = None,
-    price: Optional[float] = None,
+# @app.put("/update/{item_id}")
+# def update_item(item_id: int, db: Session = Depends(get_db), 
+#     name: Optional[str] = None,
+#     description: Optional[str] = None,
+#     price: Optional[float] = None,
+#     category: Optional[Category] = None
+# ) -> dict[str, Item]:
+#     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
+#     if db_item is None:
+#         raise HTTPException(status_code=404, detail=f"Item with {item_id = } not found")
+#     if name is not None:
+#         db_item.name = name
+#     if description is not None:
+#         db_item.description = description
+#     if price is not None:
+#         db_item.price = price
+#     if category is not None:
+#         db_item.category = category
+#     db.commit()
+#     db.refresh(db_item)
+#     return {"updated": db_item}
+class ItemUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
     category: Optional[Category] = None
-) -> dict[str, Item]:
+    
+@app.put("/update/{item_id}")
+def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)) -> dict[str, Item]:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
-        raise HTTPException(status_code=404, detail=f"Item with {item_id = } not found")
-    if name is not None:
-        db_item.name = name
-    if description is not None:
-        db_item.description = description
-    if price is not None:
-        db_item.price = price
-    if category is not None:
-        db_item.category = category
+        raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
+    
+    print(f"Before Update: {db_item.__dict__}")
+
+    update_data = item.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_item, key, value)
+
     db.commit()
     db.refresh(db_item)
+    
+    print(f"After Update: {db_item.__dict__}")
     return {"updated": db_item}
 
+
 @app.delete("/delete/{item_id}")
-def delete_item(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db)) -> dict[str, Item]:
+def delete_item(item_id: int, db: Session = Depends(get_db)) -> dict[str, Item]:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail=f"Item with {item_id = } does not exist")
@@ -214,10 +232,5 @@ def delete_item(item_id: int, current_user: Annotated[User, Depends(get_current_
     return {"deleted": db_item}
 
 @app.get("/users/me/", response_model=User)
-async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
+async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
-
-
-
-
-
