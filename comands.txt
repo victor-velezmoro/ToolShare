@@ -1,12 +1,12 @@
 curl -X POST "http://127.0.0.1:8000/login" -H "Content-Type: application/json" -d '{"username": "usertest", "password": "passwordtest"}'
 curl -X POST "http://127.0.0.1:8000/register" -H "Content-Type: application/json" -d '{"username": "usertest", "password": "passwordtest"}'
 
-curl -X POST "http://127.0.0.1:8000/token" -H "Content-Type: application/x-www-form-urlencoded" -d "username=myuser&password=password"
-curl -X POST "http://127.0.0.1:8000/" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VydGVzdCIsImV4cCI6MTczMTA1OTAyNX0.82I9LvoIxiS9lJGBEvnWEunlLgFfL29mumlQE7gDmZ0" -H "Content-Type: application/json" -d '{
+curl -X POST "http://127.0.0.1:8000/token" -H "Content-Type: application/x-www-form-urlencoded" -d "username=usertest&password=passwordtest"
+curl -X POST "http://127.0.0.1:8000/" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VydGVzdCIsImV4cCI6MTczMTI2NjQwMn0.ORIzftBLAA7Uf6I8XB-gBjKQxtc_y4pjlFT87DN0VAw" -H "Content-Type: application/json" -d '{
     "name": "Heavy-Duty Hammer",
-    "description": "An upgraded heavy-duty hammer",
+    "description": "123",
     "price": 20.0,
-    "categary": "tools"
+    "category": "tools"
 }'
 
 #commands without security
@@ -32,5 +32,17 @@ SELECT * FROM users;
 
 \dt # for tables
 \l  # for databases
+
+
+
+
+
+#docker command 
+docker-compose up -d  # to start the container
+docker-compose ps    # to check the status of the container
+docker-compose logs -f # to check the logs of the container
+docker-compose down  # to stop the container
+
+
 
 

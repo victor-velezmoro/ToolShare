@@ -5,9 +5,12 @@ from sqlalchemy.orm import sessionmaker
 from main import app, get_db
 from models import Base, User as DBUser, Item as DBItem, Category
 from database import DATABASE_URL
+import os
 
-# Use a test database URL
-SQLALCHEMY_DATABASE_URL = "postgresql://myuser:password@localhost:5432/test_fastapi_database"
+
+SQLALCHEMY_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
+
+
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -23,6 +26,7 @@ app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
 
+    
 @pytest.fixture(scope="module")
 def setup_database():
     # Ensure we're using the test database
@@ -34,6 +38,30 @@ def setup_database():
     yield  # Run the tests
     # Drop the tables after tests complete
     Base.metadata.drop_all(bind=engine)
+
+# @pytest.fixture(scope="module")
+# def setup_database():
+#     # Ensure we're using the test database
+#     if "test" not in SQLALCHEMY_DATABASE_URL:
+#         raise RuntimeError("Tests should not run on the production database!")
+
+#     # Create the test database if it does not exist
+#     engine = create_engine("postgresql://myuser:password@db:5432/postgres")
+#     conn = engine.connect()
+#     conn.execute("commit")  # We need to be outside a transaction to create databases.
+#     result = conn.execute(
+#         "SELECT 1 FROM pg_database WHERE datname = 'test_fastapi_database'"
+#     )
+#     if result.rowcount == 0:
+#         conn.execute("CREATE DATABASE test_fastapi_database")
+#     conn.close()
+
+    # # Create the tables in the test database
+    # engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    # Base.metadata.create_all(bind=engine)
+    # yield  # Run the tests
+    # # Drop the tables after tests complete
+    # Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="module")
 def db():

@@ -5,3 +5,7 @@ psycopg2-binary
 python-dotenv
 passlib[bcrypt]
 python-jose
+python-multipart
+pytest
+httpx
+
