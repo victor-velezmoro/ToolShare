@@ -12,23 +12,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:alpine
-        env:
-          POSTGRES_USER: myuser
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: fastapi_database
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U myuser"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        volumes:
-          - postgres_data:/var/lib/postgresql/data
-
     steps:
       # Step 1: Checkout code from repository
       - name: Checkout code
@@ -38,37 +21,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Cache Docker layers (optional for speeding up builds)
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+      # Step 3: Install Make
+      - name: Install Make
+        run: sudo apt-get install make -y
 
-      # Step 4: Build Docker containers using docker-compose
-      - name: Build Docker containers
-        run: docker-compose -f docker-compose.yml build
-
-      # Step 5: Run Docker containers in detached mode
-      - name: Run Docker containers
-        run: docker-compose -f docker-compose.yml up -d
-
-      # Step 6: Wait for the services to be healthy
-      - name: Wait for DB to be ready
-        run: |
-          until docker exec postgres_container pg_isready -U myuser; do
-            echo "Waiting for PostgreSQL to be ready..."
-            sleep 5
-          done
-
-      # Step 7: Run tests inside the 'fastapi_tests' container
-      - name: Run Tests
-        run: |
-          docker-compose -f docker-compose.yml run --rm test
-
-      # Step 8: Tear down Docker containers
-      - name: Tear down Docker containers
-        if: always()
-        run: docker-compose -f docker-compose.yml down
+      # Step 4: Run the Makefile to build, run, test, and tear down
+      - name: Build, Run, Test, and Tear Down
+        run: make full-test
