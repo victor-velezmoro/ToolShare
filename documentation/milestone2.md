@@ -13,17 +13,17 @@ I chose FASTAPI as the web framework for this project. FastAPI is a modern, fast
 
 ### Database 
 
-Without using a Database, changes in the items register are lost every time the system is shut down. For this reason i chose to use PostgreSQL. In the Database a table of users and of items. I picked PostgreSQL for the database because it’s reliable and handles complex data well. It pairs well with FastAPI, especially since they both support async calls, so data can be accessed quickly without slowing things down.
+Without using a Database, changes in the items register are lost every time the system is shut down. For this reason i chose to use PostgreSQL. In the Database a table of users and of items is created. I picked PostgreSQL for the database because it’s reliable and handles complex data well. It pairs well with FastAPI, especially since they both support async calls, so data can be accessed quickly without slowing things down.
 
 ![alt text](image-1.png)
 
 ### Docker Containers 
 When it comes to Docker, I chose it because of its flexibility and consistency. Docker lets me package the FastAPI application, PostgreSQL database, and testing environment into separate, isolated containers. This is incredibly useful for development and deployment. Containers allow each service to run with its own dependencies and environment, ensuring that what works locally will work the same in any environment where the containers are deployed. It also simplifies scaling the application since new containers can be added or removed with ease. With Docker, I can make sure each service is running in its own environment, yet they can communicate efficiently, almost as if they were parts of a single machine.
 
-For now I have tree contrainer: 
-postgres_container for the databases
-fast_api for the FASTAPI application
-toolshare_test_run for testing
+For now I have tree contrainer: <br>
+postgres_container for the databases <br>
+fast_api for the FASTAPI application <br>
+toolshare_test_run for testing <br>
 
 ![alt text](image-2.png)
 

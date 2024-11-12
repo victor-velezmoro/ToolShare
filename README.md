@@ -16,6 +16,6 @@ Easy!!!
 
 Link to get to the milestones: 
 
-[Milestone 1](/documentation/milestone1.md)
+[Milestone 1](/documentation/milestone1.md) <br>
 [Milestone 2](/documentation/milestone2.md)
 
