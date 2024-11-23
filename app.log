@@ -1,0 +1,145 @@
+2024-11-23 16:55:07,003 - INFO - Test log message to verify file output
+2024-11-23 16:55:07,063 - INFO - select pg_catalog.version()
+2024-11-23 16:55:07,063 - INFO - [raw sql] {}
+2024-11-23 16:55:07,065 - INFO - select current_schema()
+2024-11-23 16:55:07,066 - INFO - [raw sql] {}
+2024-11-23 16:55:07,067 - INFO - show standard_conforming_strings
+2024-11-23 16:55:07,067 - INFO - [raw sql] {}
+2024-11-23 16:55:07,068 - INFO - BEGIN (implicit)
+2024-11-23 16:55:07,072 - INFO - SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 16:55:07,072 - INFO - [generated in 0.00056s] {'table_name': 'items', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
+2024-11-23 16:55:07,078 - INFO - SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 16:55:07,079 - INFO - [cached since 0.006684s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
+2024-11-23 16:55:07,082 - INFO - SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = %(typname_1)s AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 16:55:07,082 - INFO - [generated in 0.00052s] {'typname_1': 'category', 'nspname_1': 'pg_catalog'}
+2024-11-23 16:55:07,083 - INFO - COMMIT
+2024-11-23 16:55:19,493 - INFO - Request: GET http://127.0.0.1:8000/docs
+2024-11-23 16:55:19,495 - INFO - Response: 200
+2024-11-23 16:55:19,988 - INFO - Request: GET http://127.0.0.1:8000/openapi.json
+2024-11-23 16:55:20,009 - INFO - Response: 200
+2024-11-23 16:57:29,750 - INFO - Request: POST http://127.0.0.1:8000/register
+2024-11-23 16:57:29,756 - INFO - BEGIN (implicit)
+2024-11-23 16:57:29,758 - INFO - SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.full_name AS users_full_name, users.hashed_password AS users_hashed_password, users.disabled AS users_disabled 
+FROM users 
+WHERE users.username = %(username_1)s 
+ LIMIT %(param_1)s
+2024-11-23 16:57:29,758 - INFO - [generated in 0.00049s] {'username_1': 'usertest', 'param_1': 1}
+2024-11-23 16:57:29,762 - INFO - ROLLBACK
+2024-11-23 16:57:29,764 - INFO - Response: 400
+2024-11-23 16:58:12,776 - INFO - Request: POST http://127.0.0.1:8000/token
+2024-11-23 16:58:12,779 - INFO - BEGIN (implicit)
+2024-11-23 16:58:12,780 - INFO - SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.full_name AS users_full_name, users.hashed_password AS users_hashed_password, users.disabled AS users_disabled 
+FROM users 
+WHERE users.username = %(username_1)s 
+ LIMIT %(param_1)s
+2024-11-23 16:58:12,781 - INFO - [cached since 43.02s ago] {'username_1': 'usertest', 'param_1': 1}
+2024-11-23 16:58:12,785 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-11-23 16:58:13,080 - INFO - ROLLBACK
+2024-11-23 16:58:13,082 - INFO - Response: 200
+2024-11-23 16:58:37,361 - INFO - Request: GET http://127.0.0.1:8000/
+2024-11-23 16:58:37,363 - INFO - BEGIN (implicit)
+2024-11-23 16:58:37,365 - INFO - SELECT items.id AS items_id, items.name AS items_name, items.description AS items_description, items.price AS items_price, items.category AS items_category 
+FROM items
+2024-11-23 16:58:37,365 - INFO - [generated in 0.00046s] {}
+2024-11-23 16:58:37,375 - INFO - ROLLBACK
+2024-11-23 16:58:37,376 - INFO - Response: 200
+2024-11-23 16:59:25,827 - INFO - Request: GET http://127.0.0.1:8000/docs
+2024-11-23 16:59:25,829 - INFO - Response: 200
+2024-11-23 16:59:26,257 - INFO - Request: GET http://127.0.0.1:8000/openapi.json
+2024-11-23 16:59:26,258 - INFO - Response: 200
+2024-11-23 16:59:57,172 - INFO - Request: POST http://127.0.0.1:8000/token
+2024-11-23 16:59:57,174 - INFO - BEGIN (implicit)
+2024-11-23 16:59:57,175 - INFO - SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.full_name AS users_full_name, users.hashed_password AS users_hashed_password, users.disabled AS users_disabled 
+FROM users 
+WHERE users.username = %(username_1)s 
+ LIMIT %(param_1)s
+2024-11-23 16:59:57,175 - INFO - [cached since 147.4s ago] {'username_1': 'usertest', 'param_1': 1}
+2024-11-23 16:59:57,445 - INFO - ROLLBACK
+2024-11-23 16:59:57,447 - INFO - Response: 200
+2024-11-23 17:01:05,932 - INFO - Request: POST http://127.0.0.1:8000/
+2024-11-23 17:01:05,933 - INFO - Response: 401
+2024-11-23 17:02:05,865 - INFO - Request: GET http://127.0.0.1:8000/items/2
+2024-11-23 17:02:05,867 - INFO - BEGIN (implicit)
+2024-11-23 17:02:05,867 - INFO - SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.full_name AS users_full_name, users.hashed_password AS users_hashed_password, users.disabled AS users_disabled 
+FROM users 
+WHERE users.username = %(username_1)s 
+ LIMIT %(param_1)s
+2024-11-23 17:02:05,868 - INFO - [cached since 276.1s ago] {'username_1': 'usertest', 'param_1': 1}
+2024-11-23 17:02:05,870 - INFO - SELECT items.id AS items_id, items.name AS items_name, items.description AS items_description, items.price AS items_price, items.category AS items_category 
+FROM items 
+WHERE items.id = %(id_1)s 
+ LIMIT %(param_1)s
+2024-11-23 17:02:05,870 - INFO - [generated in 0.00045s] {'id_1': 2, 'param_1': 1}
+2024-11-23 17:02:05,872 - INFO - ROLLBACK
+2024-11-23 17:02:05,873 - INFO - Response: 404
+2024-11-23 17:02:43,823 - INFO - Request: POST http://127.0.0.1:8000/
+2024-11-23 17:02:43,826 - INFO - BEGIN (implicit)
+2024-11-23 17:02:43,827 - INFO - SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.full_name AS users_full_name, users.hashed_password AS users_hashed_password, users.disabled AS users_disabled 
+FROM users 
+WHERE users.username = %(username_1)s 
+ LIMIT %(param_1)s
+2024-11-23 17:02:43,827 - INFO - [cached since 314.1s ago] {'username_1': 'usertest', 'param_1': 1}
+2024-11-23 17:02:43,833 - INFO - INSERT INTO items (name, description, price, category) VALUES (%(name)s, %(description)s, %(price)s, %(category)s) RETURNING items.id
+2024-11-23 17:02:43,833 - INFO - [generated in 0.00051s] {'name': 'House', 'description': 'small house', 'price': 10.0, 'category': 'TOOLS'}
+2024-11-23 17:02:43,837 - INFO - COMMIT
+2024-11-23 17:02:43,839 - INFO - BEGIN (implicit)
+2024-11-23 17:02:43,841 - INFO - SELECT items.id, items.name, items.description, items.price, items.category 
+FROM items 
+WHERE items.id = %(pk_1)s
+2024-11-23 17:02:43,841 - INFO - [generated in 0.00074s] {'pk_1': 1}
+2024-11-23 17:02:43,844 - INFO - ROLLBACK
+2024-11-23 17:02:43,845 - INFO - Response: 200
+2024-11-23 17:05:15,866 - INFO - Test log message to verify file output
+2024-11-23 17:05:15,959 - INFO - select pg_catalog.version()
+2024-11-23 17:05:15,960 - INFO - [raw sql] {}
+2024-11-23 17:05:15,962 - INFO - select current_schema()
+2024-11-23 17:05:15,963 - INFO - [raw sql] {}
+2024-11-23 17:05:15,966 - INFO - show standard_conforming_strings
+2024-11-23 17:05:15,966 - INFO - [raw sql] {}
+2024-11-23 17:05:15,968 - INFO - BEGIN (implicit)
+2024-11-23 17:05:15,973 - INFO - SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 17:05:15,974 - INFO - [generated in 0.00079s] {'table_name': 'items', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
+2024-11-23 17:05:15,977 - INFO - SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 17:05:15,978 - INFO - [cached since 0.005485s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
+2024-11-23 17:05:15,983 - INFO - SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = %(typname_1)s AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 17:05:15,984 - INFO - [generated in 0.00075s] {'typname_1': 'category', 'nspname_1': 'pg_catalog'}
+2024-11-23 17:05:15,986 - INFO - COMMIT
+2024-11-23 20:02:56,216 - INFO - Test log message to verify file output
+2024-11-23 20:07:39,728 - INFO - Test log message to verify file output
+2024-11-23 20:13:51,427 - INFO - Test log message to verify file output
+2024-11-23 20:13:51,496 - INFO - select pg_catalog.version()
+2024-11-23 20:13:51,496 - INFO - [raw sql] {}
+2024-11-23 20:13:51,514 - INFO - select current_schema()
+2024-11-23 20:13:51,515 - INFO - [raw sql] {}
+2024-11-23 20:13:51,519 - INFO - show standard_conforming_strings
+2024-11-23 20:13:51,521 - INFO - [raw sql] {}
+2024-11-23 20:13:51,523 - INFO - BEGIN (implicit)
+2024-11-23 20:13:51,529 - INFO - SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 20:13:51,529 - INFO - [generated in 0.00063s] {'table_name': 'items', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
+2024-11-23 20:13:51,538 - INFO - SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = %(table_name)s AND pg_catalog.pg_class.relkind = ANY (ARRAY[%(param_1)s, %(param_2)s, %(param_3)s, %(param_4)s, %(param_5)s]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 20:13:51,538 - INFO - [cached since 0.009857s ago] {'table_name': 'users', 'param_1': 'r', 'param_2': 'p', 'param_3': 'f', 'param_4': 'v', 'param_5': 'm', 'nspname_1': 'pg_catalog'}
+2024-11-23 20:13:51,542 - INFO - SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = %(typname_1)s AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != %(nspname_1)s
+2024-11-23 20:13:51,542 - INFO - [generated in 0.00075s] {'typname_1': 'category', 'nspname_1': 'pg_catalog'}
+2024-11-23 20:13:51,544 - INFO - COMMIT

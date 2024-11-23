@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 from pydantic import BaseModel, Field
 from typing import Annotated, Optional
 from datetime import datetime, timedelta, timezone
@@ -8,13 +8,31 @@ from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from database import init_db, SessionLocal
 from models import Item as DBItem, User as DBUser, Category
+import logging
+from logging.handlers import RotatingFileHandler
+from config import settings
 
-app = FastAPI(
-    title="ToolShare",
-    description="A simple tool sharing application",
-    version="0.1"
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        RotatingFileHandler("app.log", maxBytes=1000000, backupCount=3),
+        logging.StreamHandler()
+    ]
 )
 
+logger = logging.getLogger(__name__)
+logger.info("Test log message to verify file output")
+
+
+
+app = FastAPI(
+    title="settings.app_name",
+    description="A simple tool sharing application",
+    version="0.3"
+)
 # Database dependency
 def get_db():
     db = SessionLocal()
@@ -24,9 +42,9 @@ def get_db():
         db.close()
 
 # Security
-SECRET_KEY = "128efd6b4d377c3e6354d4ccd33ac360bd72bc3e7d119a6f5181d6c9f17f889d"
+SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -93,6 +111,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logger.info(f"Request: {request.method} {request.url}")
+    response = await call_next(request)
+    logger.info(f"Response: {response.status_code}")
+    print(f"Middleware triggered for {request.method} {request.url}")
+    return response
 
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):

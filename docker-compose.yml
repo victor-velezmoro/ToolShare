@@ -24,21 +24,24 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: fastapi_app
-    environment:
-      DATABASE_URL: "postgresql://myuser:password@db:5432/fastapi_database"
+    env_file:
+    - .env.production
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+    - ./app.log:/app/app.log
+
 
   test:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: fastapi_tests
-    environment:
-      TEST_DATABASE_URL: "postgresql://myuser:password@db:5432/test_fastapi_database"
+    env_file:
+      - .env.testing
     depends_on:
       db:
         condition: service_healthy
