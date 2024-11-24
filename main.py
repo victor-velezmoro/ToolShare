@@ -120,7 +120,47 @@ async def log_requests(request: Request, call_next):
     print(f"Middleware triggered for {request.method} {request.url}")
     return response
 
-@app.post("/token", response_model=Token)
+# @app.post("/token", response_model=Token)
+# async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+#     user = authenticate_user(db, form_data.username, form_data.password)
+#     if not user:
+#         raise HTTPException(
+#             status_code=401,
+#             detail="Incorrect username or password",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+#     access_token = create_access_token(
+#         data={"sub": user.username}, expires_delta=access_token_expires
+#     )
+#     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post(
+    "/token",
+    response_model=Token,
+    description="Generate an access token for authentication.",
+    responses={
+        200: {
+            "description": "Access token successfully generated.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                        "token_type": "bearer"
+                    }
+                }
+            },
+        },
+        401: {
+            "description": "Invalid username or password.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Incorrect username or password"}
+                }
+            },
+        },
+    },
+)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -135,12 +175,49 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/register", response_model=User)
+
+# @app.post("/register", response_model=User)
+# def register(user: UserCreate, db: Session = Depends(get_db)):
+#     db_user = get_user(db, user.username)
+#     if db_user:
+#         raise HTTPException(status_code=400, detail="Username already registered")
+#     return create_user(db, user)
+
+@app.post(
+    "/register",
+    response_model=User,
+    description="Register a new user with a unique username and email address.",
+    responses={
+        200: {
+            "description": "User successfully registered.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "username": "johndoe",
+                        "email": "johndoe@example.com",
+                        "full_name": "John Doe",
+                        "disabled": False
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Username already registered.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Username already registered"}
+                }
+            },
+        },
+    },
+)
+
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user(db, user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
     return create_user(db, user)
+
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
@@ -189,31 +266,92 @@ def index(db: Session = Depends(get_db)) -> dict[str, list[Item]]:
     items = [Item(**db_item.__dict__) for db_item in db_items if "_sa_instance_state" not in db_item.__dict__]
     return {"items": items}
 
-@app.get("/items/{item_id}")
+@app.get(
+    "/items/{item_id}",
+    response_model=Item,
+    description="Retrieve the details of an item by its unique ID.",
+    responses={
+        200: {
+            "description": "Item found successfully.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "id": 1,
+                        "name": "Hammer",
+                        "description": "A tool for hitting nails.",
+                        "price": 10.0,
+                        "category": "tools"
+                    }
+                }
+            },
+        },
+        404: {
+            "description": "Item not found.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Item with id=1 not found"}
+                }
+            },
+        },
+    },
+)
 def get_item_by_id(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db)) -> Item:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
-        raise HTTPException(status_code=404, detail=f"Item with {item_id = } not found")
+        raise HTTPException(status_code=404, detail=f"Item with id={item_id} not found")
     return db_item
 
-# @app.post("/")
-# def add_item(item: Item, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)) -> dict[str, Item]:
-#     db_item = db.query(DBItem).filter(DBItem.id == item.id).first() 
-#     if db_item:
-#         raise HTTPException(status_code=400, detail=f"Item already exists")
-#     new_item = DBItem(**item.dict())
-#     db.add(new_item)
-#     db.commit()
-#     db.refresh(new_item)
-#     return {"added": new_item}
-@app.post("/")
-def add_item(item: Item, current_user: Annotated[User, Depends(get_current_user)], db: Session = Depends(get_db)) -> dict[str, Item]:
-    # Remove the ID check, as ID is auto-generated by the database
+@app.post(
+    "/",
+    description="Add a new item to the system. The user must be authenticated.",
+    responses={
+        200: {
+            "description": "Item successfully added.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "added": {
+                            "id": 1,
+                            "name": "Hammer",
+                            "description": "A useful tool for construction.",
+                            "price": 10.0,
+                            "category": "tools"
+                        }
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Invalid input data or unauthorized access.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Invalid input data"}
+                }
+            },
+        },
+    },
+)
+def add_item(
+    item: Item,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Session = Depends(get_db)
+) -> dict[str, Item]:
+    """
+    Add a new item to the database.
+
+    Parameters:
+    - `item`: The item details (name, description, price, category).
+    - `current_user`: The authenticated user adding the item.
+
+    Returns:
+    - A dictionary containing the added item.
+    """
     new_item = DBItem(**item.dict())
     db.add(new_item)
     db.commit()
     db.refresh(new_item)
     return {"added": new_item}
+
 
 
 class ItemUpdate(BaseModel):
@@ -223,54 +361,99 @@ class ItemUpdate(BaseModel):
     category: Optional[Category] = None
     
     
-# @app.put("/update/{item_id}")
-# def update_item(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db), 
-#     name: Optional[str] = None,
-#     description: Optional[str] = None,
-#     price: Optional[float] = None,
-#     category: Optional[Category] = None
-# ) -> dict[str, Item]:
-#     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
-#     if db_item is None:
-#         raise HTTPException(status_code=404, detail=f"Item with {item_id = } not found")
-#     if name is not None:
-#         db_item.name = name
-#     if description is not None:
-#         db_item.description = description
-#     if price is not None:
-#         db_item.price = price
-#     if category is not None:
-#         db_item.category = category
-#     db.commit()
-#     db.refresh(db_item)
-#     return {"updated": db_item}
 
-@app.put("/update/{item_id}")
-def update_item(item_id: int, item: ItemUpdate, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db)) -> dict[str, Item]:
+
+@app.put(
+    "/update/{item_id}",
+    description="Update the details of an item by its ID. The user must be authenticated.",
+    responses={
+        200: {
+            "description": "Item successfully updated.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "updated": {
+                            "id": 1,
+                            "name": "Updated Hammer",
+                            "description": "An updated description for the hammer.",
+                            "price": 15.0,
+                            "category": "tools"
+                        }
+                    }
+                }
+            },
+        },
+        404: {
+            "description": "Item not found.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Item with id=1 not found"}
+                }
+            },
+        },
+    },
+)
+def update_item(
+    item_id: int,
+    item: ItemUpdate,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+) -> dict[str, Item]:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
-        raise HTTPException(status_code=404, detail=f"Item with id {item_id} not found")
+        raise HTTPException(status_code=404, detail=f"Item with id={item_id} not found")
     
-    print(f"Before Update: {db_item.__dict__}")
-
     update_data = item.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_item, key, value)
 
     db.commit()
     db.refresh(db_item)
-    
-    print(f"After Update: {db_item.__dict__}")
     return {"updated": db_item}
 
-@app.delete("/delete/{item_id}")
-def delete_item(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db)) -> dict[str, Item]:
+
+@app.delete(
+    "/delete/{item_id}",
+    description="Delete an item by its ID. The user must be authenticated.",
+    responses={
+        200: {
+            "description": "Item successfully deleted.",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "deleted": {
+                            "id": 1,
+                            "name": "Hammer",
+                            "description": "A tool for hitting nails.",
+                            "price": 10.0,
+                            "category": "tools"
+                        }
+                    }
+                }
+            },
+        },
+        404: {
+            "description": "Item not found.",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Item with id=1 does not exist"}
+                }
+            },
+        },
+    },
+)
+def delete_item(
+    item_id: int,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+) -> dict[str, Item]:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
-        raise HTTPException(status_code=404, detail=f"Item with {item_id = } does not exist")
+        raise HTTPException(status_code=404, detail=f"Item with id={item_id} does not exist")
     db.delete(db_item)
     db.commit()
     return {"deleted": db_item}
+
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
