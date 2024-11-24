@@ -39,29 +39,7 @@ def setup_database():
     # Drop the tables after tests complete
     Base.metadata.drop_all(bind=engine)
 
-# @pytest.fixture(scope="module")
-# def setup_database():
-#     # Ensure we're using the test database
-#     if "test" not in SQLALCHEMY_DATABASE_URL:
-#         raise RuntimeError("Tests should not run on the production database!")
 
-#     # Create the test database if it does not exist
-#     engine = create_engine("postgresql://myuser:password@db:5432/postgres")
-#     conn = engine.connect()
-#     conn.execute("commit")  # We need to be outside a transaction to create databases.
-#     result = conn.execute(
-#         "SELECT 1 FROM pg_database WHERE datname = 'test_fastapi_database'"
-#     )
-#     if result.rowcount == 0:
-#         conn.execute("CREATE DATABASE test_fastapi_database")
-#     conn.close()
-
-    # # Create the tables in the test database
-    # engine = create_engine(SQLALCHEMY_DATABASE_URL)
-    # Base.metadata.create_all(bind=engine)
-    # yield  # Run the tests
-    # # Drop the tables after tests complete
-    # Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="module")
 def db():
@@ -81,6 +59,50 @@ def test_register_user(setup_database, db):
     data = response.json()
     assert data["username"] == "usertest"
     assert data["email"] == "usertest@example.com"
+    
+def test_register_user_negative(setup_database, db):
+    
+    response = client.post("/register", json={
+        "username": "usertest"
+    })
+    assert response.status_code == 422  # Unprocessable Entity
+    assert "detail" in response.json()
+
+    # Duplicate username
+    response = client.post("/register", json={
+        "username": "usertest",
+        "email": "duplicate@example.com",
+        "full_name": "Duplicate User",
+        "password": "password123"
+    })
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Username already registered"
+    
+
+@pytest.fixture(scope="function")
+def isolated_db():
+    # Create a new isolated session for every test
+    connection = engine.connect()
+    transaction = connection.begin()
+    db = TestingSessionLocal(bind=connection)
+
+    yield db
+
+    # Rollback after the test
+    db.close()
+    transaction.rollback()
+    connection.close()
+    
+def test_register_user_isolated(isolated_db):
+    response = client.post("/register", json={
+        "username": "isolateduser",
+        "email": "isolated@example.com",
+        "full_name": "Isolated Test",
+        "password": "password123"
+    })
+    assert response.status_code == 200
+    assert response.json()["username"] == "isolateduser"
+
 
 def test_login_user(setup_database):
     response = client.post("/token", data={
@@ -91,6 +113,24 @@ def test_login_user(setup_database):
     data = response.json()
     assert "access_token" in data
     return data["access_token"]
+
+def test_login_user_negative(setup_database):
+    # Invalid username
+    response = client.post("/token", data={
+        "username": "nonexistentuser",
+        "password": "password123"
+    })
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Incorrect username or password"
+
+    # Incorrect password
+    response = client.post("/token", data={
+        "username": "usertest",
+        "password": "wrongpassword"
+    })
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Incorrect username or password"
+
 
 def test_add_item(setup_database, db):
     # Obtain the token first
@@ -114,6 +154,30 @@ def test_add_item(setup_database, db):
     assert data["added"]["description"] == "A useful tool"
     assert data["added"]["price"] == 10.0
     assert data["added"]["category"] == "tools"
+    
+def test_add_item_edge_cases(setup_database):
+    token = test_login_user(setup_database)
+
+    # Empty description
+    response = client.post("/", json={
+        "name": "Empty Description Tool",
+        "description": "",
+        "price": 10.0,
+        "category": "tools"
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["added"]["description"] == ""
+
+    # Extreme price values
+    response = client.post("/", json={
+        "name": "Expensive Tool",
+        "description": "A very expensive tool",
+        "price": 1000000.0,
+        "category": "tools"
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["added"]["price"] == 1000000.0
+
 
 
 
@@ -144,6 +208,15 @@ def test_update_item(setup_database):
     data = response.json()
     assert data["updated"]["description"] == "A very useful tool"
     assert data["updated"]["price"] == 12.0
+    
+def test_update_item_unauthorized(setup_database):
+    response = client.put("/update/1", json={
+        "name": "Unauthorized Update",
+        "description": "Should fail"
+    })
+    assert response.status_code == 401  # Unauthorized
+    assert response.json()["detail"] == "Not authenticated"
+
 
 def test_delete_item(setup_database):
     # Obtain the token first
