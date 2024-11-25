@@ -9,3 +9,6 @@ python-multipart
 pytest
 httpx
 pydantic-settings
+flake8
+black
+pylint

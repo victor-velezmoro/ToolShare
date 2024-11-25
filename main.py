@@ -13,26 +13,26 @@ from logging.handlers import RotatingFileHandler
 from config import settings
 
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         RotatingFileHandler("app.log", maxBytes=1000000, backupCount=3),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 
 logger = logging.getLogger(__name__)
 logger.info("Test log message to verify file output")
 
 
-
 app = FastAPI(
     title="settings.app_name",
     description="A simple tool sharing application",
-    version="0.3"
+    version="0.3",
 )
+
+
 # Database dependency
 def get_db():
     db = SessionLocal()
@@ -40,6 +40,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 # Security
 SECRET_KEY = settings.secret_key
@@ -49,12 +50,15 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
     username: Optional[str] = None
+
 
 class User(BaseModel):
     username: str
@@ -62,23 +66,29 @@ class User(BaseModel):
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
 
+
 class UserInDB(User):
     hashed_password: str
-    
+
+
 class UserCreate(BaseModel):
     username: str
     email: Optional[str] = None
     full_name: Optional[str] = None
     password: str
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
+
 def get_user(db: Session, username: str):
     return db.query(DBUser).filter(DBUser.username == username).first()
+
 
 def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
@@ -87,12 +97,13 @@ def create_user(db: Session, user: UserCreate):
         email=user.email,
         full_name=user.full_name,
         hashed_password=hashed_password,
-        disabled=False
+        disabled=False,
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user(db, username)
@@ -101,6 +112,7 @@ def authenticate_user(db: Session, username: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -112,6 +124,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info(f"Request: {request.method} {request.url}")
@@ -119,6 +132,7 @@ async def log_requests(request: Request, call_next):
     logger.info(f"Response: {response.status_code}")
     print(f"Middleware triggered for {request.method} {request.url}")
     return response
+
 
 # @app.post("/token", response_model=Token)
 # async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
@@ -135,6 +149,7 @@ async def log_requests(request: Request, call_next):
 #     )
 #     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @app.post(
     "/token",
     response_model=Token,
@@ -146,7 +161,7 @@ async def log_requests(request: Request, call_next):
                 "application/json": {
                     "example": {
                         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                        "token_type": "bearer"
+                        "token_type": "bearer",
                     }
                 }
             },
@@ -161,7 +176,9 @@ async def log_requests(request: Request, call_next):
         },
     },
 )
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -183,6 +200,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 #         raise HTTPException(status_code=400, detail="Username already registered")
 #     return create_user(db, user)
 
+
 @app.post(
     "/register",
     response_model=User,
@@ -196,7 +214,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                         "username": "johndoe",
                         "email": "johndoe@example.com",
                         "full_name": "John Doe",
-                        "disabled": False
+                        "disabled": False,
                     }
                 }
             },
@@ -211,7 +229,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         },
     },
 )
-
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user(db, user.username)
     if db_user:
@@ -219,9 +236,10 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(db, user)
 
 
-
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    #print("Retrieved user:", user)
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+):
+    # print("Retrieved user:", user)
     credentials_exception = HTTPException(
         status_code=401,
         detail="Could not validate credentials",
@@ -240,13 +258,17 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
-async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]):
+
+async def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+):
     print("Current user's disabled status:", current_user.disabled)
-    #debug
+    # debug
     current_user.disabled = False
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
 
 class Item(BaseModel):
     name: str = Field(description="Name of the item", min_length=1)
@@ -254,6 +276,7 @@ class Item(BaseModel):
     price: float = Field(description="Price for borrowing the item")
     # id: int = Field(description="Unique identifier for the item")
     category: Category = Field(description="category of the item")
+
 
 @app.on_event("startup")
 def on_startup():
@@ -263,8 +286,13 @@ def on_startup():
 @app.get("/")
 def index(db: Session = Depends(get_db)) -> dict[str, list[Item]]:
     db_items = db.query(DBItem).all()
-    items = [Item(**db_item.__dict__) for db_item in db_items if "_sa_instance_state" not in db_item.__dict__]
+    items = [
+        Item(**db_item.__dict__)
+        for db_item in db_items
+        if "_sa_instance_state" not in db_item.__dict__
+    ]
     return {"items": items}
+
 
 @app.get(
     "/items/{item_id}",
@@ -280,7 +308,7 @@ def index(db: Session = Depends(get_db)) -> dict[str, list[Item]]:
                         "name": "Hammer",
                         "description": "A tool for hitting nails.",
                         "price": 10.0,
-                        "category": "tools"
+                        "category": "tools",
                     }
                 }
             },
@@ -288,18 +316,21 @@ def index(db: Session = Depends(get_db)) -> dict[str, list[Item]]:
         404: {
             "description": "Item not found.",
             "content": {
-                "application/json": {
-                    "example": {"detail": "Item with id=1 not found"}
-                }
+                "application/json": {"example": {"detail": "Item with id=1 not found"}}
             },
         },
     },
 )
-def get_item_by_id(item_id: int, current_user: Annotated[User, Depends(get_current_active_user)], db: Session = Depends(get_db)) -> Item:
+def get_item_by_id(
+    item_id: int,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
+) -> Item:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail=f"Item with id={item_id} not found")
     return db_item
+
 
 @app.post(
     "/",
@@ -315,7 +346,7 @@ def get_item_by_id(item_id: int, current_user: Annotated[User, Depends(get_curre
                             "name": "Hammer",
                             "description": "A useful tool for construction.",
                             "price": 10.0,
-                            "category": "tools"
+                            "category": "tools",
                         }
                     }
                 }
@@ -324,9 +355,7 @@ def get_item_by_id(item_id: int, current_user: Annotated[User, Depends(get_curre
         400: {
             "description": "Invalid input data or unauthorized access.",
             "content": {
-                "application/json": {
-                    "example": {"detail": "Invalid input data"}
-                }
+                "application/json": {"example": {"detail": "Invalid input data"}}
             },
         },
     },
@@ -334,7 +363,7 @@ def get_item_by_id(item_id: int, current_user: Annotated[User, Depends(get_curre
 def add_item(
     item: Item,
     current_user: Annotated[User, Depends(get_current_user)],
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> dict[str, Item]:
     """
     Add a new item to the database.
@@ -353,14 +382,11 @@ def add_item(
     return {"added": new_item}
 
 
-
 class ItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
     category: Optional[Category] = None
-    
-    
 
 
 @app.put(
@@ -377,7 +403,7 @@ class ItemUpdate(BaseModel):
                             "name": "Updated Hammer",
                             "description": "An updated description for the hammer.",
                             "price": 15.0,
-                            "category": "tools"
+                            "category": "tools",
                         }
                     }
                 }
@@ -386,9 +412,7 @@ class ItemUpdate(BaseModel):
         404: {
             "description": "Item not found.",
             "content": {
-                "application/json": {
-                    "example": {"detail": "Item with id=1 not found"}
-                }
+                "application/json": {"example": {"detail": "Item with id=1 not found"}}
             },
         },
     },
@@ -397,12 +421,12 @@ def update_item(
     item_id: int,
     item: ItemUpdate,
     current_user: Annotated[User, Depends(get_current_active_user)],
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> dict[str, Item]:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
         raise HTTPException(status_code=404, detail=f"Item with id={item_id} not found")
-    
+
     update_data = item.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_item, key, value)
@@ -426,7 +450,7 @@ def update_item(
                             "name": "Hammer",
                             "description": "A tool for hitting nails.",
                             "price": 10.0,
-                            "category": "tools"
+                            "category": "tools",
                         }
                     }
                 }
@@ -445,21 +469,20 @@ def update_item(
 def delete_item(
     item_id: int,
     current_user: Annotated[User, Depends(get_current_active_user)],
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ) -> dict[str, Item]:
     db_item = db.query(DBItem).filter(DBItem.id == item_id).first()
     if db_item is None:
-        raise HTTPException(status_code=404, detail=f"Item with id={item_id} does not exist")
+        raise HTTPException(
+            status_code=404, detail=f"Item with id={item_id} does not exist"
+        )
     db.delete(db_item)
     db.commit()
     return {"deleted": db_item}
 
 
 @app.get("/users/me/", response_model=User)
-async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]):
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_active_user)]
+):
     return current_user
-
-
-
-
-

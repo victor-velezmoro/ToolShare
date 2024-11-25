@@ -25,3 +25,13 @@ down:
 
 # Run full test sequence
 full-test: build up test down
+
+.PHONY: lint
+lint:
+	flake8 .  
+	black --check .  
+
+.PHONY: lint-fix
+lint-fix:
+	black .  
+

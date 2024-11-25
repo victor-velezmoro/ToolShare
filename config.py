@@ -13,5 +13,6 @@ class Settings(BaseSettings):
         # Dynamically load the .env file based on the environment
         env_file = f".env.{os.getenv('ENVIRONMENT', 'development')}"
 
+
 # Create a settings instance for the application
 settings = Settings()

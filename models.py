@@ -4,9 +4,11 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Category(Enum):
     TOOLS = "tools"
     SERVICE = "service"
+
 
 class Item(Base):
     __tablename__ = "items"
@@ -16,7 +18,7 @@ class Item(Base):
     description = Column(String, index=True, nullable=True)
     price = Column(Float)
     category = Column(SqlEnum(Category))
-    
+
 
 class User(Base):
     __tablename__ = "users"

@@ -53,7 +53,6 @@
 #     return {"item_id": item_id, **item.dict()}
 
 
-
 # from typing import Annotated
 
 # from fastapi import Depends, FastAPI
