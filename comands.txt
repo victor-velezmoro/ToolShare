@@ -1,5 +1,5 @@
 curl -X POST "http://127.0.0.1:8000/login" -H "Content-Type: application/json" -d '{"username": "usertest", "password": "passwordtest"}'
-curl -X POST "http://127.0.0.1:8000/register" -H "Content-Type: application/json" -d '{"username": "usertest", "password": "passwordtest"}'
+curl -X POST "http://127.0.0.1:8000/register" -H "Content-Type: application/json" -d '{"username": "te", "password": "te"}'
 
 curl -X POST "http://127.0.0.1:8000/token" -H "Content-Type: application/x-www-form-urlencoded" -d "username=usertest&password=passwordtest"
 curl -X POST "http://127.0.0.1:8000/" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VydGVzdCIsImV4cCI6MTczMTI2NjQwMn0.ORIzftBLAA7Uf6I8XB-gBjKQxtc_y4pjlFT87DN0VAw" -H "Content-Type: application/json" -d '{

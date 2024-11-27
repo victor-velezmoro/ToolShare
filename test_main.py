@@ -2,7 +2,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from main import app, get_db
+from main import app
+from dependencies.db import get_db
 from models import Base, User as DBUser, Item as DBItem, Category
 from database import DATABASE_URL
 import os
@@ -51,7 +52,7 @@ def db():
 
 def test_register_user(setup_database, db):
     response = client.post(
-        "/register",
+        "/users/register",
         json={
             "username": "usertest",
             "email": "usertest@example.com",
@@ -68,13 +69,13 @@ def test_register_user(setup_database, db):
 
 def test_register_user_negative(setup_database, db):
 
-    response = client.post("/register", json={"username": "usertest"})
+    response = client.post("/users/register", json={"username": "usertest"})
     assert response.status_code == 422  # Unprocessable Entity
     assert "detail" in response.json()
 
     # Duplicate username
     response = client.post(
-        "/register",
+        "/users/register",
         json={
             "username": "usertest",
             "email": "duplicate@example.com",
@@ -103,7 +104,7 @@ def isolated_db():
 
 def test_register_user_isolated(isolated_db):
     response = client.post(
-        "/register",
+        "/users/register",
         json={
             "username": "isolateduser",
             "email": "isolated@example.com",
@@ -117,7 +118,7 @@ def test_register_user_isolated(isolated_db):
 
 def test_login_user(setup_database):
     response = client.post(
-        "/token", data={"username": "usertest", "password": "password123"}
+        "/auth/token", data={"username": "usertest", "password": "password123"}
     )
     assert response.status_code == 200
     data = response.json()
@@ -128,14 +129,14 @@ def test_login_user(setup_database):
 def test_login_user_negative(setup_database):
     # Invalid username
     response = client.post(
-        "/token", data={"username": "nonexistentuser", "password": "password123"}
+        "/auth/token", data={"username": "nonexistentuser", "password": "password123"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
 
     # Incorrect password
     response = client.post(
-        "/token", data={"username": "usertest", "password": "wrongpassword"}
+        "/auth/token", data={"username": "usertest", "password": "wrongpassword"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect username or password"
@@ -147,7 +148,7 @@ def test_add_item(setup_database, db):
 
     # Add the item
     response = client.post(
-        "/",
+        "/items/",
         json={
             "name": "Hammer",
             "description": "A useful tool",
@@ -174,7 +175,7 @@ def test_add_item_edge_cases(setup_database):
 
     # Empty description
     response = client.post(
-        "/",
+        "/items/",
         json={
             "name": "Empty Description Tool",
             "description": "",
@@ -188,7 +189,7 @@ def test_add_item_edge_cases(setup_database):
 
     # Extreme price values
     response = client.post(
-        "/",
+        "/items/",
         json={
             "name": "Expensive Tool",
             "description": "A very expensive tool",
@@ -206,7 +207,7 @@ def test_get_item_by_id(setup_database):
     token = test_login_user(setup_database)
 
     # Retrieve item by ID
-    response = client.get("/items/1", headers={"Authorization": f"Bearer {token}"})
+    response = client.get("/items/items/1", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Hammer"
@@ -218,7 +219,7 @@ def test_update_item(setup_database):
 
     # Update the item
     response = client.put(
-        "/update/1",
+        "/items/update/1",
         json={
             "name": "Hammer",
             "description": "A very useful tool",
@@ -237,7 +238,7 @@ def test_update_item(setup_database):
 
 def test_update_item_unauthorized(setup_database):
     response = client.put(
-        "/update/1", json={"name": "Unauthorized Update", "description": "Should fail"}
+        "/items/update/1", json={"name": "Unauthorized Update", "description": "Should fail"}
     )
     assert response.status_code == 401  # Unauthorized
     assert response.json()["detail"] == "Not authenticated"
@@ -248,7 +249,7 @@ def test_delete_item(setup_database):
     token = test_login_user(setup_database)
 
     # Delete the item
-    response = client.delete("/delete/1", headers={"Authorization": f"Bearer {token}"})
+    response = client.delete("/items/delete/1", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     data = response.json()
     assert data["deleted"]["name"] == "Hammer"
