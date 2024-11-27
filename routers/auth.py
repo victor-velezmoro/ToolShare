@@ -12,7 +12,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/token",
+
+@router.post(
+    "/token",
     response_model=Token,
     description="Generate an access token for authentication.",
     responses={
@@ -38,7 +40,8 @@ router = APIRouter()
     },
 )
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+):
     logger.info("Attempting to authenticate user")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:

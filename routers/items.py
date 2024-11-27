@@ -4,10 +4,16 @@ from typing import Annotated
 from dependencies.auth import get_current_active_user, get_current_user
 from dependencies.db import get_db
 from schemas.item import Item, ItemUpdate
-from services.item_service import add_item_service, update_item_service, get_item_by_id_service, delete_item_service
+from services.item_service import (
+    add_item_service,
+    update_item_service,
+    get_item_by_id_service,
+    delete_item_service,
+)
 from schemas.user import User
 
 router = APIRouter(tags=["Items"])
+
 
 @router.post(
     "/",
@@ -45,6 +51,7 @@ def add_item(
     new_item = add_item_service(db, item)
     return {"added": new_item}
 
+
 @router.get(
     "/items/{item_id}",
     response_model=Item,
@@ -79,6 +86,7 @@ def get_item_by_id(
 ) -> Item:
     db_item = get_item_by_id_service(db, item_id)
     return db_item
+
 
 @router.put(
     "/update/{item_id}",
@@ -116,6 +124,7 @@ def update_item(
 ) -> dict[str, Item]:
     updated_item = update_item_service(db, item_id, item)
     return {"updated": updated_item}
+
 
 @router.delete(
     "/delete/{item_id}",

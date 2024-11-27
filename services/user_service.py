@@ -3,6 +3,7 @@ from models import User as DBUser
 from schemas.user import UserCreate
 from services.auth_service import get_password_hash
 
+
 def create_user(db: Session, user: UserCreate):
     hashed_password = get_password_hash(user.password)
     db_user = DBUser(
@@ -16,6 +17,7 @@ def create_user(db: Session, user: UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def get_user(db: Session, username: str):
     return db.query(DBUser).filter(DBUser.username == username).first()

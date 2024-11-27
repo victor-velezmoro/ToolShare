@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-@router.post("/register",
+
+@router.post(
+    "/register",
     response_model=User,
     description="Register a new user with a unique username and email address.",
     responses={
@@ -45,4 +47,3 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     new_user = create_user(db, user)
     logger.info("User registered successfully: %s", new_user.username)
     return new_user
-

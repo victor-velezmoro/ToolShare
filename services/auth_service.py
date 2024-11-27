@@ -1,5 +1,3 @@
-
-
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
@@ -16,14 +14,18 @@ SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
+
 def get_user(db: Session, username: str):
     return db.query(DBUser).filter(DBUser.username == username).first()
+
 
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user(db, username)
@@ -32,6 +34,7 @@ def authenticate_user(db: Session, username: str, password: str):
     if not verify_password(password, user.hashed_password):
         return False
     return user
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

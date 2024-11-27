@@ -1,6 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
+
 def setup_logging(log_file: str = "app.log"):
     logging.basicConfig(
         level=logging.INFO,
@@ -13,6 +14,7 @@ def setup_logging(log_file: str = "app.log"):
 
     logger = logging.getLogger(__name__)
     return logger
+
 
 # Initialize logging
 logger = setup_logging()

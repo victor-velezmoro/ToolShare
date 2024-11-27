@@ -23,6 +23,7 @@ app = FastAPI(
     version="0.3",
 )
 
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     logger.info(f"Request: {request.method} {request.url}")
@@ -31,10 +32,12 @@ async def log_requests(request: Request, call_next):
     print(f"Middleware triggered for {request.method} {request.url}")
     return response
 
+
 # Include routers
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(users.router, prefix="/users", tags=["Users"])
 app.include_router(items.router, prefix="/items", tags=["Items"])
+
 
 @app.on_event("startup")
 def on_startup():

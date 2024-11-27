@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_db():
     db: Session = SessionLocal()
     try:

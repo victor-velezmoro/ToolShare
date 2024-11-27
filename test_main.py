@@ -207,7 +207,9 @@ def test_get_item_by_id(setup_database):
     token = test_login_user(setup_database)
 
     # Retrieve item by ID
-    response = client.get("/items/items/1", headers={"Authorization": f"Bearer {token}"})
+    response = client.get(
+        "/items/items/1", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Hammer"
@@ -238,7 +240,8 @@ def test_update_item(setup_database):
 
 def test_update_item_unauthorized(setup_database):
     response = client.put(
-        "/items/update/1", json={"name": "Unauthorized Update", "description": "Should fail"}
+        "/items/update/1",
+        json={"name": "Unauthorized Update", "description": "Should fail"},
     )
     assert response.status_code == 401  # Unauthorized
     assert response.json()["detail"] == "Not authenticated"
@@ -249,7 +252,9 @@ def test_delete_item(setup_database):
     token = test_login_user(setup_database)
 
     # Delete the item
-    response = client.delete("/items/delete/1", headers={"Authorization": f"Bearer {token}"})
+    response = client.delete(
+        "/items/delete/1", headers={"Authorization": f"Bearer {token}"}
+    )
     assert response.status_code == 200
     data = response.json()
     assert data["deleted"]["name"] == "Hammer"

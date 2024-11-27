@@ -134,8 +134,6 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-
-
 @app.post(
     "/token",
     response_model=Token,
@@ -177,7 +175,6 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 
 @app.post(
