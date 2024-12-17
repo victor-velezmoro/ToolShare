@@ -1,21 +1,33 @@
+import logging
+from logging.handlers import RotatingFileHandler
 from fastapi import FastAPI, Request
 from database import init_db
 from routers import auth, items, users
-import logging
-from logging.handlers import RotatingFileHandler
 from config import settings
 
+# Configure logging
+log_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+# File handler: Logs to a file with rotation
+file_handler = RotatingFileHandler(
+    "logs/app.log", maxBytes=1000000, backupCount=3
+)
+file_handler.setFormatter(log_formatter)
+
+# Stream handler: Logs to stdout for Docker logs
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(log_formatter)
+
+# Add handlers to logger
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        RotatingFileHandler("app.log", maxBytes=1000000, backupCount=3),
-        logging.StreamHandler(),
-    ],
+    handlers=[file_handler, console_handler],
 )
 
 logger = logging.getLogger(__name__)
-logger.info("Test log message to verify file output")
+logger.info("Test log message to verify file and console output")
+
+
 
 app = FastAPI(
     title="ToolShare",

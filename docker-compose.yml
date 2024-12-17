@@ -6,14 +6,12 @@ networks:
 services:
   db:
     image: postgres:alpine
-    container_name: postgres_container
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: fastapi_database
+    container_name: SQL_container
+    env_file:
+      - environment/.env.db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Assumes init.sql creates the test database
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  
     ports:
       - "5432:5432"
     healthcheck:
@@ -30,14 +28,14 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_app
     env_file:
-    - .env.production
+    - environment/.env.production
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       db:
         condition: service_healthy
     volumes:
-    - ./app.log:/app/app.log
+      - ./logs:/app/logs 
     networks:
       - toolshare_network
 
@@ -48,7 +46,7 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_tests
     env_file:
-      - .env.testing
+      - environment/.env.testing
     depends_on:
       db:
         condition: service_healthy

@@ -14,7 +14,7 @@ up:
 # Run tests using the `test` service defined in docker-compose.yml
 test: up 
 	@echo "Waiting for PostgreSQL to be ready..."
-	until docker exec postgres_container pg_isready -U myuser; do \
+	until docker exec SQL_container pg_isready -U myuser; do \
 	    sleep 5; \
 	done
 	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm test
