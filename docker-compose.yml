@@ -1,5 +1,8 @@
 version: "3.8"
 
+networks:
+  toolshare_network:
+
 services:
   db:
     image: postgres:alpine
@@ -18,6 +21,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - toolshare_network
 
   web:
     build:
@@ -33,6 +38,8 @@ services:
         condition: service_healthy
     volumes:
     - ./app.log:/app/app.log
+    networks:
+      - toolshare_network
 
 
   test:
@@ -46,6 +53,8 @@ services:
       db:
         condition: service_healthy
     command: ["pytest", "-v", "--ignore=WithoutSecurity"]
+    networks:
+      - toolshare_network
 
 volumes:
   postgres_data:
