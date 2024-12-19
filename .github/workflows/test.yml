@@ -51,12 +51,6 @@ jobs:
 
       - name: Login to GitHub Container Registry
         run: echo "${{ secrets.DOCKER_TOKEN2}}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      # Step 3: Install Docker Compose
-      - name: Install Docker Compose
-        run: |
-          curl -L "https://github.com/docker/compose/releases/download/v2.6.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          chmod +x /usr/local/bin/docker-compose
       
       - name: Build and push Docker image
         run: docker-compose -f docker-compose.yml build

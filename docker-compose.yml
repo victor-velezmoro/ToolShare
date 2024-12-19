@@ -26,6 +26,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ghcr.io/victor-velezmoro/ToolShare/web:latest
     container_name: fastapi_app
     env_file:
     - environment/.env.production
@@ -44,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ghcr.io/victor-velezmoro/ToolShare/test:latest
     container_name: fastapi_tests
     env_file:
       - environment/.env.testing
