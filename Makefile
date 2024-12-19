@@ -24,7 +24,7 @@ down:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) down
 
 # Run full test sequence
-full-test: build up test down
+full-test: up test down
 
 .PHONY: lint
 lint:

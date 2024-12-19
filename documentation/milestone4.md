@@ -57,8 +57,31 @@ The Web Service and the Testing Services build their containers based on this Do
 
 
 
+### 2. **Implemanting GitHub Packages**
+
+As a next step i implemented GitHub Packages to store the Docker images. The idea behind this is to have a central place to store the images and to not have to build the images on the local machine. This safes time and resources.
+
+## 2.1 **GitHub Actions**
+![alt text](image-13.png)
+
+GitHub Actions are used to build the Docker images and to push them to the GitHub Packages. The first step is to login to the GitHub Packages. Next the Docker images are build and tagged with the GitHub Packages URL. The last step is to push the images to the GitHub Packages. 
+Before we can login we have to create a GitHub Secret. This is done in the settings of the repository. 
+
+![alt text](image-14.png)
+
+First we need to create a personal access token. This is done in the settings (Developer Settings) of the GitHub account. Next we navigate in the repository settings to the secrets and create a new secret. The secret is called DOCKER_TOKEN2. We can see the secret in the GitHub Actions to login to the GitHub Packages.
+![alt text](image-15.png)
+
+## 2.2 **Docker Compose**
+
+We need to update our Docker Compose file to use the images from the GitHub Packages. This is done by changing the image URL to the GitHub Packages URL. 
+
+![alt text](image-16.png)
 
 
+![alt text](image-17.png)
+
+We now no longer need to build the images on the local machine. We can just pull the images from the GitHub Packages.
 
 
 
