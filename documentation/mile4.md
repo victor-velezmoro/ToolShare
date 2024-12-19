@@ -21,12 +21,10 @@ To ensure both scalability and isolation, the web application is divided into th
 
 As a first step, a custom network is defined so that all containers can communicate with each other:
 
-networks:
-  toolshare_network:
-
-- **The Database Container:** Hosts the PostgreSQL database.
-- **The Web Application Container:** Runs the FastAPI application.
-- **The Test Container:** Executes tests using a separate database instance.
+```bash
+    networks:
+        toolshare_network:
+```
 
 #### 1.3 Database Container
 
