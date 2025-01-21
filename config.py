@@ -1,4 +1,3 @@
-import os
 from pydantic_settings import BaseSettings
 
 
@@ -7,12 +6,12 @@ class Settings(BaseSettings):
     database_url: str
     secret_key: str
     access_token_expire_minutes: int = 30
-    app_name: str = "ToolShare"  # Default value in case it's not in the .env file
+    app_name: str = "ToolShare"
 
     class Config:
-        # Dynamically load the .env file based on the environment
-        env_file = f".env.{os.getenv('ENVIRONMENT', 'development')}"
+        env_file = ".env"  # Only for local development
+        env_file_encoding = 'utf-8'
 
 
-# Create a settings instance for the application
 settings = Settings()
+
