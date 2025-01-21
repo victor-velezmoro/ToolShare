@@ -20,6 +20,7 @@ Link to get to the milestones:
 [Milestone 2](/documentation/milestone2.md) <br>
 [Milestone 3](/documentation/milestone3.md) <br>
 [Milestone 4](/documentation/milestone4.md) <br>
+[Milestone 5](/documentation/milestone5.md) <br>
 
 ## How to execute ToolShare
 
