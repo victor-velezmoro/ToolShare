@@ -185,4 +185,12 @@ but we can also use the tools procided within the Fly.io dashboard.
 
 This is it for the deployment in the cloud. I hope you enjoyed the journey.
 
+---
+
+
+## 📚 Website 
+
+Website:  https://toolshare-cloud.fly.dev/docs
+(The website takes some time to load, because the server is sleeping. Please be patient.)
+
 
