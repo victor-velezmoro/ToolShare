@@ -13,7 +13,7 @@ With ToolShare, renting and sharing tools is simple:
 * What if things break?: We recommend signing up for our insurance. If a tool breaks, we’ll replace it and ensure the owner gets a new one.
 Easy!!!
 
-Website:  https://toolshare-cloud.fly.dev/docs
+Website:  https://toolshare-cloud.fly.dev/docs <br>
 (The website takes some time to load, because the server is sleeping. Please be patient.)
 
 Link to get to the milestones: 
